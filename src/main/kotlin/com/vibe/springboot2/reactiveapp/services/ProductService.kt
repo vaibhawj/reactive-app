@@ -12,17 +12,14 @@ import java.util.*
 class ProductService(@Autowired val productRepo: ProductRepo) {
 
     fun getAllProducts(): Flux<Product> {
-        return productRepo.getAllProducts()
+        return productRepo.getAll()
     }
 
     fun getProduct(id: UUID): Mono<Product> {
-        return productRepo.getProduct(id)
+        return productRepo.get(id)
     }
 
-    fun createProduct(product: Mono<Product>): UUID? {
-        return productRepo.createProduct(product)
+    fun createOrUpdateProduct(product: Mono<Product>): UUID? {
+        return productRepo.createOrUpdate(product)
     }
-
-
-
 }

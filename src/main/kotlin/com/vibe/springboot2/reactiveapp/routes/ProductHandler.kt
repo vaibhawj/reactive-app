@@ -36,10 +36,10 @@ class ProductHandler(@Autowired val productService: ProductService) {
         }
     }
 
-    fun createProduct(): HandlerFunction<ServerResponse> {
+    fun createOrUpdateProduct(): HandlerFunction<ServerResponse> {
 
         return HandlerFunction { request ->
-            val id = productService.createProduct(request.bodyToMono(Product::class.java))
+            val id = productService.createOrUpdateProduct(request.bodyToMono(Product::class.java))
             ServerResponse.created(URI.create("/products/$id"))
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(fromPublisher(productService.getAllProducts(), Product::class.java))

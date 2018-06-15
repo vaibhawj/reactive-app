@@ -11,16 +11,16 @@ class ProductRepo(var productBackend: List<Product>) {
 
     constructor() : this(mutableListOf())
 
-    fun getAllProducts(): Flux<Product> {
+    fun getAll(): Flux<Product> {
         return Flux.fromIterable(productBackend)
     }
 
-    fun getProduct(id: UUID?): Mono<Product> {
+    fun get(id: UUID?): Mono<Product> {
         val filteredProducts: List<Product> = productBackend.filter { product -> id == product.id }
         return Mono.justOrEmpty(filteredProducts.firstOrNull())
     }
 
-    fun createProduct(product: Mono<Product>): UUID? {
+    fun createOrUpdate(product: Mono<Product>): UUID? {
         var id: UUID? = null
         product.subscribe { p ->
             run {

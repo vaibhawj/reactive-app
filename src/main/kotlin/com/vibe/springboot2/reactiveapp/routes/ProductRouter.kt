@@ -17,7 +17,7 @@ class ProductRouter {
         return nest(path("/api"),
                 route(GET("/products").and(accept(APPLICATION_JSON)), productHandler::getProducts.invoke())
                 .andRoute(GET("/products/{id}").and(accept(APPLICATION_JSON)), productHandler::getProduct.invoke())
-                .andRoute(POST("/products").and(accept(APPLICATION_JSON)), productHandler::createProduct.invoke())
+                .andRoute(POST("/products").and(accept(APPLICATION_JSON)), productHandler::createOrUpdateProduct.invoke())
         )
     }
 }

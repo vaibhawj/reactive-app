@@ -13,7 +13,7 @@ class ProductRepoTest {
 
         val productRepo = ProductRepo()
 
-        val allProducts: Flux<Product> = productRepo.getAllProducts()
+        val allProducts: Flux<Product> = productRepo.getAll()
 
         StepVerifier.create(allProducts)
                 .expectComplete()
@@ -24,7 +24,7 @@ class ProductRepoTest {
 
         val productRepo = ProductRepo(listOf(Product("apple", 1.0), Product("banana", 2.0)))
 
-        val allProducts: Flux<Product> = productRepo.getAllProducts()
+        val allProducts: Flux<Product> = productRepo.getAll()
 
         StepVerifier.create(allProducts)
                 .expectNext(Product("apple", 1.0))
@@ -41,7 +41,7 @@ class ProductRepoTest {
 
         val productRepo = ProductRepo(listOf(apple, banana))
 
-        val product: Mono<Product> = productRepo.getProduct(banana.id)
+        val product: Mono<Product> = productRepo.get(banana.id)
 
         StepVerifier.create(product)
                 .expectNext(banana)
@@ -54,7 +54,7 @@ class ProductRepoTest {
         val apple = Product("apple", 1.0)
         val productRepo = ProductRepo(listOf(apple))
 
-        val product: Mono<Product> = productRepo.getProduct(UUID.randomUUID())
+        val product: Mono<Product> = productRepo.get(UUID.randomUUID())
 
         StepVerifier.create(product)
                 .expectComplete()
@@ -64,9 +64,9 @@ class ProductRepoTest {
     @Test fun should_add_one_product_to_list() {
         val productRepo = ProductRepo()
 
-        val id = productRepo.createProduct(Mono.just(Product("chess", 4.5)))
+        val id = productRepo.createOrUpdate(Mono.just(Product("chess", 4.5)))
 
-        val allProducts: Flux<Product> = productRepo.getAllProducts()
+        val allProducts: Flux<Product> = productRepo.getAll()
 
 
 
