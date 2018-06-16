@@ -27,12 +27,12 @@ class ProductRepo(var productBackend: List<Product>) {
             val product = productBackend.filter { p -> p.id == it.id }.firstOrNull()
             if(product == null) {
                 it.id = UUID.randomUUID()
+                id = it.id
                 (productBackend as MutableList).add(it)
             } else {
                 product.price = it.price
                 product.name = it.name
             }
-            id = it.id
         }
         return id
     }
