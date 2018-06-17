@@ -15,6 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.context.junit4.SpringRunner
 import org.springframework.test.web.reactive.server.WebTestClient
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
 
@@ -64,6 +65,31 @@ class ReactiveAppApplicationTests {
                 .exchange()
                 .expectStatus().isCreated
                 .expectBody().isEmpty
+    }
+
+    @Test
+    fun testGetProducts() {
+
+        whenever(productService!!.getAllProducts())
+                .thenReturn(Flux.just(Product("apple", 2.5, UUID.fromString("f87a0969-e71e-4a26-abd9-770831cfb920"))))
+
+        webTestClient!!.get().uri("/api/products")
+                .exchange()
+                .expectStatus().isOk
+                .expectBody().json("[{\"name\":\"apple\",\"price\":2.5,\"id\":\"f87a0969-e71e-4a26-abd9-770831cfb920\"}]")
+
+    }
+
+    @Test
+    fun testGetProduct() {
+        val productId = UUID.fromString("f87a0969-e71e-4a26-abd9-770831cfb920")
+        whenever(productService!!.getProduct(productId))
+                .thenReturn(Mono.just(Product("apple", 2.5, productId)))
+
+        webTestClient!!.get().uri("/api/products/${productId.toString()}")
+                .exchange()
+                .expectStatus().isOk
+                .expectBody().json("{\"name\":\"apple\",\"price\":2.5,\"id\":\"f87a0969-e71e-4a26-abd9-770831cfb920\"}")
     }
 
 }
