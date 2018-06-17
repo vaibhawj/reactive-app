@@ -46,7 +46,7 @@ class ProductHandler(@Autowired val productService: ProductService) {
             if(id == null) {
                 ServerResponse.ok().build()
             } else {
-                ServerResponse.created(URI.create("/products/$id")).build()
+                ServerResponse.created(URI.create("/api/products/$id")).build()
             }
         }
     }
