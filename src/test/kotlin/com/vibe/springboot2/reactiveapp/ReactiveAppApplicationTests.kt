@@ -3,6 +3,7 @@ package com.vibe.springboot2.reactiveapp
 import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.whenever
 import com.vibe.springboot2.reactiveapp.dto.Product
+import com.vibe.springboot2.reactiveapp.errors.ProductNotFoundException
 import com.vibe.springboot2.reactiveapp.services.ProductService
 import org.junit.Before
 import org.junit.Test
@@ -40,31 +41,74 @@ class ReactiveAppApplicationTests {
     }
 
     @Test
-    fun testUpdateProduct() {
+    fun testUpdateProductForNotFound() {
         val appleMono = Mono.just(Product("apple", 3.5))
 
-        whenever(productService!!.createOrUpdateProduct(any())).thenReturn(null)
+        val exception = RuntimeException(ProductNotFoundException())
+        whenever(productService!!.updateProduct(any())).thenThrow(exception)
 
         webTestClient!!.post().uri("/api/products")
                 .contentType(APPLICATION_JSON)
                 .body(appleMono, Product::class.java)
                 .exchange()
-                .expectStatus().isOk
+                .expectStatus().isNotFound
                 .expectBody().isEmpty
+    }
+
+    @Test
+    fun testUpdateProductForAnyError() {
+        val appleMono = Mono.just(Product("apple", 3.5))
+
+        val exception = RuntimeException()
+        whenever(productService!!.updateProduct(any())).thenThrow(exception)
+
+        webTestClient!!.post().uri("/api/products")
+            .contentType(APPLICATION_JSON)
+            .body(appleMono, Product::class.java)
+            .exchange()
+            .expectStatus().is5xxServerError
+            .expectBody().isEmpty
+    }
+
+    @Test
+    fun testUpdateProduct() {
+        val appleMono = Mono.just(Product("apple", 3.5))
+
+        webTestClient!!.post().uri("/api/products")
+            .contentType(APPLICATION_JSON)
+            .body(appleMono, Product::class.java)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody().isEmpty
     }
 
     @Test
     fun testCreateProduct() {
         val appleMono = Mono.just(Product("apple", 3.5))
 
-        whenever(productService!!.createOrUpdateProduct(any())).thenReturn(UUID.randomUUID())
+        val uuid = UUID.randomUUID()
+        whenever(productService!!.createProduct(any())).thenReturn(uuid)
 
-        webTestClient!!.post().uri("/api/products")
+        webTestClient!!.put().uri("/api/products")
                 .contentType(APPLICATION_JSON)
                 .body(appleMono, Product::class.java)
                 .exchange()
                 .expectStatus().isCreated
                 .expectBody().isEmpty
+    }
+
+    @Test
+    fun testCreateProductForError() {
+        val appleMono = Mono.just(Product("apple", 3.5))
+
+        whenever(productService!!.createProduct(any())).thenReturn(null)
+
+        webTestClient!!.put().uri("/api/products")
+            .contentType(APPLICATION_JSON)
+            .body(appleMono, Product::class.java)
+            .exchange()
+            .expectStatus().is5xxServerError
+            .expectBody().isEmpty
     }
 
     @Test

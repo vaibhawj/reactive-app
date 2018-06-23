@@ -64,7 +64,7 @@ class ProductRepoTest {
     @Test fun should_add_one_product_to_list() {
         val productRepo = ProductRepo()
 
-        val id = productRepo.createOrUpdate(Mono.just(Product("chess", 4.5)))
+        val id = productRepo.create(Mono.just(Product("chess", 4.5)))
 
         val allProducts: Flux<Product> = productRepo.getAll()
 

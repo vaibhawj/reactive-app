@@ -1,6 +1,7 @@
 package com.vibe.springboot2.reactiveapp.services
 
 import com.vibe.springboot2.reactiveapp.dto.Product
+import com.vibe.springboot2.reactiveapp.errors.ProductNotFoundException
 import com.vibe.springboot2.reactiveapp.repositories.ProductRepo
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -19,7 +20,11 @@ class ProductService(@Autowired val productRepo: ProductRepo) {
         return productRepo.get(id)
     }
 
-    fun createOrUpdateProduct(product: Mono<Product>): UUID? {
-        return productRepo.createOrUpdate(product)
+    fun createProduct(product: Mono<Product>): UUID? {
+        return productRepo.create(product)
+    }
+
+    fun updateProduct(product: Mono<Product>) {
+        return productRepo.update(product)
     }
 }

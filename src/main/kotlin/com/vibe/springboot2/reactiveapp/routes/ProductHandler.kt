@@ -1,6 +1,7 @@
 package com.vibe.springboot2.reactiveapp.routes
 
 import com.vibe.springboot2.reactiveapp.dto.Product
+import com.vibe.springboot2.reactiveapp.errors.ProductNotFoundException
 import com.vibe.springboot2.reactiveapp.services.ProductService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
@@ -20,7 +21,7 @@ class ProductHandler(@Autowired val productService: ProductService) {
 
         return HandlerFunction { request ->
             ok().contentType(MediaType.APPLICATION_JSON)
-                    .body(fromPublisher(productService.getAllProducts(), Product::class.java))
+                .body(fromPublisher(productService.getAllProducts(), Product::class.java))
         }
     }
 
@@ -29,21 +30,43 @@ class ProductHandler(@Autowired val productService: ProductService) {
         return HandlerFunction { request ->
             val product = productService.getProduct(UUID.fromString(request.pathVariable("id")))
 
-            product.flatMap { p ->  ok().contentType(MediaType.APPLICATION_JSON)
-                    .body(fromObject(p))}.
-                    switchIfEmpty(ServerResponse.notFound().build())
+            product.flatMap { p ->
+                ok().contentType(MediaType.APPLICATION_JSON)
+                    .body(fromObject(p))
+            }.switchIfEmpty(ServerResponse.notFound().build())
 
         }
     }
 
-    fun createOrUpdateProduct(): HandlerFunction<ServerResponse> {
+    fun createProduct(): HandlerFunction<ServerResponse> {
 
         return HandlerFunction { request ->
             val productMono = request.bodyToMono(Product::class.java)
 
-            val id = productService.createOrUpdateProduct(productMono)
+            val id = productService.createProduct(productMono)
 
-            if (id == null) ServerResponse.ok().build() else ServerResponse.created(URI.create("/api/products/$id")).build()
+            if (id == null) {
+                ServerResponse.status(500).build()
+            } else {
+                ServerResponse.created(URI.create("/api/products/$id")).build()
+            }
+        }
+    }
+
+    fun updateProduct(): HandlerFunction<ServerResponse> {
+
+        return HandlerFunction { request ->
+            val productMono = request.bodyToMono(Product::class.java)
+
+            try {
+                productService.updateProduct(productMono)
+                ServerResponse.ok().build()
+            } catch (e: RuntimeException) {
+                when (e.cause) {
+                    is ProductNotFoundException -> ServerResponse.notFound().build()
+                    else -> ServerResponse.status(500).build()
+                }
+            }
         }
     }
 
