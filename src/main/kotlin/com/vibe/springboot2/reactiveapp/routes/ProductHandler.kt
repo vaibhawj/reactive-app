@@ -45,11 +45,10 @@ class ProductHandler(@Autowired val productService: ProductService) {
 
             val id = productService.createProduct(productMono)
 
-            if (id == null) {
-                ServerResponse.status(500).build()
-            } else {
-                ServerResponse.created(URI.create("/api/products/$id")).build()
-            }
+
+            id?.let { ServerResponse.created(URI.create("/api/products/$it")).build() }
+                    ?: ServerResponse.status(500).build()
+
         }
     }
 
